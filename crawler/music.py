@@ -16,6 +16,8 @@ import jsonpath
 import requests
 
 from .. import logger
+from .constants import URL, HEADERS, DEFAULT_SAVE_PATH
+
 
 """
 编程思路：
@@ -48,6 +50,7 @@ def invert_platform(platform: str = "n"):
     """
     if not isinstance(platform, str):
         platform = str(platform)
+
     match platform.lower():
         # 网易云 netease
         case "1" | "n" | "net" | "wy" | \
@@ -95,9 +98,9 @@ def invert_platform(platform: str = "n"):
                 return "netease"
 
 
-def download_music(url, title, author, *, path: str = "./music/"):
+def download_music(url, title, author, *, path: str = DEFAULT_SAVE_PATH):
     # 创建文件夹(如果不存在的话)
-    if not os.path.exists(".\\music\\"):
+    if not os.path.exists(path):
         os.makedirs("music", exist_ok=True)
     logger.info("歌曲:{0}-{1},正在下载...".format(title, author))
 
@@ -108,14 +111,16 @@ def download_music(url, title, author, *, path: str = "./music/"):
         mode="wb"
     ) as f:
         f.write(content)
+
     logger.success(f"下载完毕,{title}-{author},请注意检查文件是否正常可用")
 
 
 def main(
     name: str = None,
     platform: str = None,
-    *, path: str = "./music/"
+    *, path: str = DEFAULT_SAVE_PATH
 ) -> bool:
+
     """
     音乐爬虫主程序
     :param name: 歌曲名称
@@ -124,6 +129,7 @@ def main(
 
     :return bool: 是否成功
     """
+
     # 获取相关信息
     if name is None:
         name = input("请输入歌曲名称:")
@@ -134,14 +140,7 @@ def main(
 
     logger.info("正在搜索...")
 
-    url = "https://music.liuzhijin.cn/"
-    headers = {
-        "user-agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-            "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36",
-        # 判断请求是异步还是同步
-        "x-requested-with": "XMLHttpRequest",
-    }
+    # 请求参数
     param = {
         "input": name,
         "filter": "name",
@@ -149,7 +148,10 @@ def main(
         "page": 1,
     }
 
-    res = requests.post(url=url, data=param, headers=headers)
+    # 发起请求
+    res = requests.post(
+        url=URL, data=param, headers=HEADERS
+    )
     json_text = res.json()
     title = jsonpath.jsonpath(json_text, "$..title")
     author = jsonpath.jsonpath(json_text, "$..author")
@@ -157,13 +159,13 @@ def main(
 
     if title:
         logger.info("找到以下歌曲:")
-        songs = list(zip(title, author, url))
+        songs = list(zip(title, author))
         for s in songs:
-            print(s[0], s[1], s[2])
+            print(s[0], s[1])
         print("-------------------------------------------------------")
         index = int(input("请输入您想下载的歌曲版本:"))
         download_music(url[index], title[index], author[index], path=path)
         return True
     else:
-        logger.error("对不起，暂无搜索结果!")
+        logger.warning("对不起，暂无搜索结果!")
         return False

@@ -3,9 +3,10 @@ import os
 import requests
 
 from .. import logger
+from .constants import DEFAULT_SAVE_PATH
 
 
-def main(url: str, path: str = './img/') -> bool:
+def main(url: str, path: str = DEFAULT_SAVE_PATH) -> bool:
     """
     图片爬虫主程序
     :param url: 图片链接
