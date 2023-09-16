@@ -2,10 +2,6 @@
 这是 中国保密在线 (www.baomi.org.cn) 的自动学习脚本
 """
 
-
-__all__ = ["main"]
-
-
 # 导入模块
 import math
 import os
@@ -18,6 +14,8 @@ import win32con
 
 from .url_and_time import urlAndTime
 from ... import logger
+
+__all__ = ['main']
 
 # 全局变量
 x: int
