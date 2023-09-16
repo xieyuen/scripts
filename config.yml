@@ -1,0 +1,16 @@
+# 爬虫的保存路径
+save_path: "./save/"
+
+# 中国保密在线学习网站
+# 网址：https://www.baomi.org.cn/
+baomi:
+  ignore_list:
+    # 看过的在这里屏蔽掉
+    # 有两种方式：
+    #   1. 写视频序号
+    #   2. 是写网址
+    # 例子:
+    # - 1
+    # - 2
+    # - 3
+    # - https://www.baomi.org.cn/...

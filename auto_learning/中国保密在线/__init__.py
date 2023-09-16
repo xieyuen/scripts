@@ -14,6 +14,7 @@ import win32con
 
 from .url_and_time import URL_AND_TIME
 from ... import logger
+from ... import config
 
 __all__ = ['main']
 
@@ -97,7 +98,17 @@ def main(_x=230, _y=760, typing='edge', kill=None):
     global x, y
     x, y = _x, _y
 
+    need_continue = False
+
     for i in URL_AND_TIME:
+
+        for ignore in config.read('baomi.ignore_list'):
+            if ignore == i['url'] or ignore == i:
+                need_continue = True
+                break
+        if need_continue:
+            logger.info(f"编号: {i}, url: {i['url']} 视频已跳过")
+            continue
 
         url = URL_AND_TIME[i]['url']
 
