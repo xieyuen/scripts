@@ -1,4 +1,4 @@
-urlAndTime = {  # 不看的直接注释掉就好了
+URL_AND_TIME = {  # 不看的直接注释掉就好了
     0: {
         'url': 'http://www.baomi.org.cn/bmVideo?id=897ed48c-b420-4b43-844b-280147eb422a&docId=9396235&siteId=95&doclibId=3&pubId=&coursePacketId=897ed48c-b420-4b43-844b-280147eb422a&directoryId=02ad4bf6-5f14-4d4b-8b46-d215f409437a&resourceId=4b301a70-ab97-487c-ab58-9099113fa0c4',
         'time': 3.34},

@@ -12,7 +12,7 @@ import webbrowser
 import win32api
 import win32con
 
-from .url_and_time import urlAndTime
+from .url_and_time import URL_AND_TIME
 from ... import logger
 
 __all__ = ['main']
@@ -72,9 +72,9 @@ class ChildThread(threading.Thread):  # 继承父类threading.Thread
             logger.info(f"现在播放视频的 ID 是: {self.video_id}")
 
             # 获取sleep时间
-            video_time = urlAndTime[self.video_id]['time']
+            video_time = URL_AND_TIME[self.video_id]['time']
             sleep_time = int(video_time) * 60 + int(math.modf(video_time)[0] * 100)
-            print("sleep time = %f" % sleep_time)
+            logger.info("sleep time = %f" % sleep_time)
             time.sleep(sleep_time + 8)  # 多看 8 秒钟，确保容错
 
             logger.success("视频播放完成")
@@ -90,16 +90,16 @@ def main(_x=230, _y=760, typing='edge', kill=None):
 
     :param _x: 播放按钮的 x 坐标
     :param _y: 播放按钮的 y 坐标
-    :param typing: 浏览器类型，可选值为 'edge' 或 'chrome'
-    :param kill: 浏览器进程名，当 typing 不为可选值时需要提供
+    :param typing: 浏览器类型，备选值为 'edge' 或 'chrome'
+    :param kill: 浏览器进程名，当 typing 不是备选值时则必须提供
     """
 
     global x, y
     x, y = _x, _y
 
-    for i in urlAndTime:
+    for i in URL_AND_TIME:
 
-        url = urlAndTime[i]['url']
+        url = URL_AND_TIME[i]['url']
 
         # 先确保chrome被关闭了
         if typing == 'edge':
