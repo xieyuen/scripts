@@ -108,6 +108,7 @@ def main(_x=230, _y=760, typing='edge', kill=None):
                 break
         if need_continue:
             logger.info(f"编号: {i}, url: {i['url']} 视频已跳过")
+            need_continue = False
             continue
 
         url = URL_AND_TIME[i]['url']
