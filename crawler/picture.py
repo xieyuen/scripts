@@ -2,7 +2,7 @@ import os
 
 import requests
 
-from .. import logger
+from ..utils import logger
 from .constants import DEFAULT_SAVE_PATH
 
 

@@ -15,7 +15,7 @@ import os
 import jsonpath
 import requests
 
-from .. import logger
+from ..utils import logger
 from .constants import URL, HEADERS, DEFAULT_SAVE_PATH
 
 

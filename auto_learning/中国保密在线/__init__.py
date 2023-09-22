@@ -13,7 +13,7 @@ import win32api
 import win32con
 
 from .url_and_time import URL_AND_TIME
-from ... import logger
+from ...utils import logger
 from ... import config
 
 __all__ = ['main']

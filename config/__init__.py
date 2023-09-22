@@ -4,8 +4,7 @@ from typing import Any
 import yaml
 
 from . import constants
-from .. import logger
-
+from ..utils import logger
 
 try:
     with open(constants.CONFIG_FILE_PATH, encoding="utf-8") as f:
