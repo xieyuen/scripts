@@ -1,3 +1,27 @@
+"""
+这个是我专门为班里写的脚本，可以快速抽人
+主要是使用命令行操控
+当然，它肯定不止抽人，这只是 random.randint 的一个简单包装
+它有什么更多的用法还请自行探索
+
+你可以新写一个类从`MainProgram`继承
+
+几个参数以及其默认值:
+
+--max=62                学号最大值
+--min=1                 学号最小值
+--enable-cli=true       是否启用控制台
+--enable-map=false      是否启用学号与人的映射
+--map={}                学号与人的映射，仅在--enable-map=true时有效
+                        请使用 python 格式输入，例如：{1:'张三', 2:'李四'}
+--disable-dedup=false   是否启用去重
+--ignore-list=[]        忽略列表，仅限整数，并且是在 --min 和 --max 之间的整数，其他的均无效
+                        和 --map 一样，请使用 python 格式输入，例如：[1, 2, 3]
+
+注意：所有的参数都需要输入值，否则为默认值。但如果你输入了前半部分而没有输入等号及后面的，
+这将会抛出 ValueError
+"""
+
 from random import randint as ri
 
 from . import logger
