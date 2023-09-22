@@ -27,6 +27,9 @@ from random import randint as ri
 from . import logger
 
 
+__version__ = '0.1'
+
+
 class MainProgram:
     def __init__(self, sys_argv):
         self.args = {
