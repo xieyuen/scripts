@@ -161,7 +161,7 @@ def main(
         logger.info("找到以下歌曲:")
         songs = list(zip(title, author))
         for s in songs:
-            print(s[0], s[1])
+            logger.info(s[0], s[1])
         print("-------------------------------------------------------")
         index = int(input("请输入您想下载的歌曲版本:"))
         download_music(url[index], title[index], author[index], path=path)
