@@ -41,15 +41,17 @@ class MainProgram:
         # --- Some important arguments and configs --- #
         self.max = int(self.args.get('--max', 62))
         self.min = int(self.args.get('--min', 1))
+        self.runtimes = self.args.get('--runtimes')
         self.ignore_list = eval(self.args.get('--ignore-list', '[]')) + eval(self.args.get('--ignore', '[]'))
         self.disable_dedup = self.args.get('--disable-dedup', 'false').lower() == 'true'
-        self.enable_save = self.args.get('--enable-save', 'false').lower() == 'true'
+        self.enable_save = self.args.get('--enable-save', 'false').lower() == 'true' or self.args.get('-save', 'false').lower() == 'true'
         self.enable_cli = self.args.get('--enable-cli', 'false').lower() == 'true' or self.args.get('--enable-console', 'false').lower() == 'true'
         self.enable_map = self.args.get('--enable-map', 'false').lower() == 'true'
         self.map = eval(self.args.get('--map', 'None'))
 
         # --- temp vars --- #
-        self.last = self.new = []
+        self.last = []
+        self.new = []
 
     def __main(self) -> int:
         r = ri(self.min, self.max)
@@ -77,17 +79,27 @@ class MainProgram:
             times = int(input('请输入抽取次数: '))
             for _ in range(times):
                 self.__main()
+                logger.info(
+                    f'恭喜第 {self.new[-1]} 号被抽中！',
+                    f'TA 是 {self.map[self.new[-1]]}' if self.enable_map else '',
+                    sep='',
+                )
 
     def run(self, runtimes=None):
+        self.last = self.new.copy()
+        self.new = []
         if self.enable_cli:
             self.__cli()
             if self.enable_save:
                 self.__save()
             return
-        if runtimes is None:
+        while runtimes is None:
+            if self.runtimes is not None:
+                break
             raise ValueError('No runtimes provided.')
         for _ in range(runtimes):
-            logger.info(f'恭喜第 {self.__main()} 号被抽中！')
+            r = self.__main()
+            logger.info(f'恭喜第 {r} 号被抽中！', f'TA 是 {self.map[r]}' if self.enable_map else '')
         if self.enable_save:
             self.__save()
 
