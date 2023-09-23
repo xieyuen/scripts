@@ -4,17 +4,15 @@
 当然，它肯定不止抽人，这只是 random.randint 的一个简单包装
 它有什么更多的用法还请自行探索
 
-你可以新写一个类从`MainProgram`继承
-
 几个参数以及其默认值:
 
---max=62                学号最大值
---min=1                 学号最小值
+--max=62                最大值
+--min=1                 最小值
 --enable-cli=true       是否启用控制台
---enable-map=false      是否启用学号与人的映射
---map={}                学号与人的映射，仅在--enable-map=true时有效
+--enable-map=false      是否启用号码与人的映射
+--map={}                号码与人的映射，仅在--enable-map=true时有效
                         请使用 python 格式输入，例如：{1:'张三', 2:'李四'}
---disable-dedup=false   是否启用去重
+--disable-dedup=false   是否禁用去重
 --ignore-list=[]        忽略列表，仅限整数，并且是在 --min 和 --max 之间的整数，其他的均无效
                         和 --map 一样，请使用 python 格式输入，例如：[1, 2, 3]
 
@@ -68,10 +66,16 @@ class MainProgram:
             logger.debug('Instead of YAML, JSON is used.')
             import json
             with open(f'{name}.json', 'w') as f:
-                json.dump([self.last, self.new], f)
+                json.dump(
+                    obj=[self.last, self.new],
+                    fp=f
+                )
         else:
             with open(f'{name}.yaml', 'w') as f:
-                yaml.dump(dict(last=self.last, new=self.new), f)
+                yaml.dump(
+                    data=dict(last=self.last, new=self.new),
+                    stream=f
+                )
 
     def __cli(self):
         logger.info('Console has been started.')
@@ -80,9 +84,9 @@ class MainProgram:
             for _ in range(times):
                 self.__main()
                 logger.info(
-                    f'恭喜第 {self.new[-1]} 号被抽中！',
-                    f'TA 是 {self.map[self.new[-1]]}' if self.enable_map else '',
-                    sep='',
+                    f'恭喜第 {self.new[-1]} 号被抽中！'
+                    + f'TA 是 {self.map[self.new[-1]]}'
+                    if self.enable_map else ''
                 )
 
     def run(self, runtimes=None):
