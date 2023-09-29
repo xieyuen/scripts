@@ -6,18 +6,25 @@
 
 几个参数以及其默认值:
 
---max=62                最大值
---min=1                 最小值
---enable-cli=true       是否启用控制台
---enable-map=false      是否启用号码与人的映射
---map={}                号码与人的映射，仅在--enable-map=true时有效
-                        请使用 python 格式输入，例如：{1:'张三', 2:'李四'}
---disable-dedup=false   是否禁用去重
---ignore-list=[]        忽略列表，仅限整数，并且是在 --min 和 --max 之间的整数，其他的均无效
-                        和 --map 一样，请使用 python 格式输入，例如：[1, 2, 3]
+必须参数：
+    --max=62        最大值
+    --min=1         最小值
 
-注意：所有的参数都需要输入值，否则为默认值。但如果你输入了前半部分而没有输入等号及后面的，
-这将会抛出 ValueError
+可选参数：
+    --enable-cli=true       是否启用控制台
+    --enable-console        同 --enable-cli
+    --save=true             是否保存结果
+    -s                      同 --save
+    --enable-map=false      是否启用号码与人的映射
+        --map={}                号码与人的映射，仅在--enable-map=true时有效
+                                请以 python 的字典形式进行输入，例如：--map={1:'张三', 2:'李四'}
+    --disable-dedup=false   是否禁用去重
+    --ignore-list=[]        忽略列表，仅限整数，并且是在 --min 和 --max 之间的整数，其他的均无效
+                            和 --map 一样，请使用 python 格式输入，例如：--ignore-list=[1, 2, 3]
+    --ignore                同 --ignore-list
+
+注意：所有的参数都需要输入值，否则为默认值。
+但如果你输入了前半部分而没有输入等号及后面的，这将会抛出 ValueError
 """
 
 from random import randint as ri
