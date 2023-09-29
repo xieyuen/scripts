@@ -132,8 +132,7 @@ class MainProgram:
                 self.__main()
                 logger.info(
                     f'恭喜第 {self.new[-1]} 号被抽中！'
-                    + f'TA 是 {self.map[self.new[-1]]}'
-                    if self.enable_map else ''
+                    + (f'TA 是 {self.map[self.new[-1]]}' if self.enable_map else '')
                 )
 
     def run(self, runtimes=None):
