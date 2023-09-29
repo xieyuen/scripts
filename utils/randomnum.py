@@ -36,27 +36,39 @@ __version__ = '0.1'
 
 
 class MainProgram:
-    def __init__(self, sys_argv):
+    def __init__(self, args):
+        # 将传入的参数转化为字典
         self.args = {
             k: v
-            for item in sys_argv[1:]
-            for k, v in item.split('=')
+            for item in args
+            for k, v in (item.split('='),)
         }
+
+        self.last = []
+        self.new = []
 
         # --- Some important arguments and configs --- #
         self.max = int(self.args.get('--max', 62))
         self.min = int(self.args.get('--min', 1))
-        self.runtimes = self.args.get('--runtimes')
-        self.ignore_list = eval(self.args.get('--ignore-list', '[]')) + eval(self.args.get('--ignore', '[]'))
+        self.runtimes = self.args.get('--runtimes', None)
+        if self.runtimes is not None:
+            self.runtimes = int(self.runtimes)
+        self.ignore_list = (
+            eval(self.args.get('--ignore-list', '[]'))
+            + eval(self.args.get('--ignore', '[]'))
+        )
         self.disable_dedup = self.args.get('--disable-dedup', 'false').lower() == 'true'
-        self.enable_save = self.args.get('--enable-save', 'false').lower() == 'true' or self.args.get('-save', 'false').lower() == 'true'
-        self.enable_cli = self.args.get('--enable-cli', 'false').lower() == 'true' or self.args.get('--enable-console', 'false').lower() == 'true'
+        self.enable_save = (
+            self.args.get('--save', 'false').lower() == 'true'
+            or self.args.get('-s', 'false').lower() == 'true'
+        )
+        self.enable_cli = (
+            self.args.get('--enable-cli', 'false').lower() == 'true'
+            or self.args.get('--enable-console', 'false').lower() == 'true'
+        )
         self.enable_map = self.args.get('--enable-map', 'false').lower() == 'true'
         self.map = eval(self.args.get('--map', 'None'))
 
-        # --- temp vars --- #
-        self.last = []
-        self.new = []
 
     def __main(self) -> int:
         r = ri(self.min, self.max)
