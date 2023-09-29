@@ -7,8 +7,8 @@
 几个参数以及其默认值:
 
 必须参数：
-    --max=62        最大值
-    --min=1         最小值
+    --max   最大值
+    --min   最小值
 
 可选参数：
     --enable-cli=true       是否启用控制台
@@ -29,7 +29,7 @@
 
 from random import randint as ri
 
-from . import logger
+import logger
 
 
 __version__ = '0.1'
@@ -48,8 +48,8 @@ class MainProgram:
         self.new = []
 
         # --- Some important arguments and configs --- #
-        self.max = int(self.args.get('--max', 62))
-        self.min = int(self.args.get('--min', 1))
+        self.max = int(self.args['--max'])
+        self.min = int(self.args['--min'])
         self.runtimes = self.args.get('--runtimes', None)
         if self.runtimes is not None:
             self.runtimes = int(self.runtimes)
@@ -86,14 +86,14 @@ class MainProgram:
             import json
             with open(f'{name}.json', 'w') as f:
                 json.dump(
-                    obj=[self.last, self.new],
-                    fp=f
+                    obj=dict(last=self.last, new=self.new),
+                    fp=f,
                 )
         else:
             with open(f'{name}.yaml', 'w') as f:
                 yaml.dump(
                     data=dict(last=self.last, new=self.new),
-                    stream=f
+                    stream=f,
                 )
 
     def __cli(self):
@@ -116,17 +116,26 @@ class MainProgram:
             if self.enable_save:
                 self.__save()
             return
-        while runtimes is None:
-            if self.runtimes is not None:
-                break
-            raise ValueError('No runtimes provided.')
+        if runtimes is None:
+            if self.runtimes is None:
+                raise ValueError('No runtimes provided.')
+            runtimes = self.runtimes
         for _ in range(runtimes):
             r = self.__main()
-            logger.info(f'恭喜第 {r} 号被抽中！', f'TA 是 {self.map[r]}' if self.enable_map else '')
+            logger.info(f'恭喜第 {r} 号被抽中！' + (f'TA 是 {self.map[r]}' if self.enable_map else ''))
         if self.enable_save:
             self.__save()
 
 
+def main(args):
+    try:
+        program = MainProgram(args)
+        program.run()
+    except Exception as e:
+        logger.critical(e)
+        logger.exception(e)
+        exit(1)
+
+
 if __name__ == '__main__':
-    import sys
-    MainProgram(sys.argv).run()
+    main(__import__('sys').argv[1:])
