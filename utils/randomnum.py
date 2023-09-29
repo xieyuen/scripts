@@ -69,6 +69,34 @@ class MainProgram:
         self.enable_map = self.args.get('--enable-map', 'false').lower() == 'true'
         self.map = eval(self.args.get('--map', 'None'))
 
+        self.__check_config()
+
+    def __check_config(self):
+        if self.max < self.min:
+            raise ValueError('The max number is smaller than the min number.')
+        if self.runtimes is not None:
+            if self.runtimes < 1:
+                raise ValueError('The runtimes must be greater than 0.')
+            if self.runtimes > (self.max - self.min + 1) and self.disable_dedup:
+                logger.critical('出现致命错误:')
+                logger.critical(f'Argument:runtimes = {self.runtimes}')
+                logger.critical(f'Argument:max = {self.max}')
+                logger.critical(f'Argument:min = {self.min}')
+                logger.critical(f'Argument:disable_dedup = {self.disable_dedup}')
+                raise ValueError('Argument:runtimes grater than Argument:max - Argument:min + 1 but enable dedup')
+        if self.enable_map:
+            if not isinstance(self.map, dict):
+                raise TypeError('Argument:map must be a dict.')
+            if not all(isinstance(i, int) for i in self.map.keys()):
+                if not all(isinstance(i, int) for i in self.map.values()):
+                    raise TypeError('Argument:map keys must be int.')
+                logger.warning('It seems that the map key is inverse with the value?')
+                logger.warning('Program will reverse the key to the value.')
+                self.map = {v: k for k, v in self.map.items()}
+            if len(self.map) < (self.max - self.min + 1):
+                logger.warning('The map is not enough.')
+                logger.warning('This may result in drawn numbers cannot matching')
+                logger.warning('The program will ignore this error')
 
     def __main(self) -> int:
         r = ri(self.min, self.max)
