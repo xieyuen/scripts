@@ -1,0 +1,4 @@
+loguru>=0.7.0
+jsonpath>=0.82.2
+requests>=2.31.0
+pywin32>=306
