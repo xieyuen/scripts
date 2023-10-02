@@ -15,8 +15,8 @@ import os
 import jsonpath
 import requests
 
-from ..utils import logger
-from .constants import URL, HEADERS, DEFAULT_SAVE_PATH
+from scripts.utils import logger
+from scripts.crawler.constants import URL, HEADERS, DEFAULT_SAVE_PATH
 
 
 """

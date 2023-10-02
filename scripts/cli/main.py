@@ -1,8 +1,8 @@
 import sys
 
-from . import constants
-from ..utils import logger
-from ..utils.exceptions import PythonVersionError
+from scripts.cli import constants
+from scripts.utils import logger
+from scripts.utils.exceptions import PythonVersionError
 
 if sys.version_info < (3, 7):
     raise PythonVersionError('Python 3.7 or higher is required.')

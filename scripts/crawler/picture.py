@@ -2,8 +2,8 @@ import os
 
 import requests
 
-from ..utils import logger
-from .constants import DEFAULT_SAVE_PATH
+from scripts.utils import logger
+from scripts.crawler.constants import DEFAULT_SAVE_PATH
 
 
 def main(url: str, path: str = DEFAULT_SAVE_PATH) -> bool:

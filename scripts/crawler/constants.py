@@ -1,6 +1,3 @@
-from .. import config
-
-
 URL = "https://music.liuzhijin.cn/"
 
 HEADERS = {
@@ -19,4 +16,3 @@ BILIBILI_HEADERS = {
 }
 
 DEFAULT_SAVE_PATH = "./crawler_downloads/"
-

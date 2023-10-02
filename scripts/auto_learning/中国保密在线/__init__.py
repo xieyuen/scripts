@@ -12,9 +12,9 @@ import webbrowser
 import win32api
 import win32con
 
-from .url_and_time import URL_AND_TIME
-from ...utils import logger
-from ... import config
+from scripts.auto_learning.中国保密在线.url_and_time import URL_AND_TIME
+from scripts.utils import logger
+
 
 __all__ = ['main']
 
@@ -102,10 +102,10 @@ def main(_x=230, _y=760, typing='edge', kill=None):
 
     for i in URL_AND_TIME:
 
-        for ignore in config.read('baomi.ignore_list'):
-            if ignore == i['url'] or ignore == i:
-                need_continue = True
-                break
+        # for ignore in config.read('baomi.ignore_list'):
+        #     if ignore == i['url'] or ignore == i:
+        #         need_continue = True
+        #         break
         if need_continue:
             logger.info(f"编号: {i}, url: {i['url']} 视频已跳过")
             need_continue = False

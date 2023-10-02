@@ -29,7 +29,7 @@
 
 from random import randint as ri
 
-import logger
+from scripts.utils import logger
 
 
 __version__ = '0.1'

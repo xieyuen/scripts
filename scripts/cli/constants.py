@@ -1,6 +1,6 @@
 from sys import version as py_version
 
-from .. import info as _info
+from scripts import info as _info
 
 WELCOME_MESSAGE = """Package version: {0}, Python version: {1}
 This is a open source project, u can see it in github: {2}
