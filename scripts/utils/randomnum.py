@@ -35,8 +35,20 @@ import logger
 __version__ = '0.1'
 
 
+def str2bool(obj: str) -> bool:
+    if obj.lower() == 'true':
+        return True
+    elif obj.lower() == 'false':
+        return False
+    else:
+        raise ValueError(f'{obj} 不是有效的 bool 值')
+
+
 class MainProgram:
     def __init__(self, args):
+        if len(args) == 0 or '-h' in args or '--help' in args:
+            print(__doc__)
+            exit()
         # 将传入的参数转化为字典
         self.args = {
             k: v
@@ -57,16 +69,16 @@ class MainProgram:
             eval(self.args.get('--ignore-list', '[]'))
             + eval(self.args.get('--ignore', '[]'))
         )
-        self.disable_dedup = self.args.get('--disable-dedup', 'false').lower() == 'true'
+        self.disable_dedup = str2bool(self.args.get('--disable-dedup', 'false'))
         self.enable_save = (
-            self.args.get('--save', 'false').lower() == 'true'
-            or self.args.get('-s', 'false').lower() == 'true'
+            str2bool(self.args.get('--save', 'false'))
+            or str2bool(self.args.get('-s', 'false'))
         )
         self.enable_cli = (
-            self.args.get('--enable-cli', 'false').lower() == 'true'
-            or self.args.get('--enable-console', 'false').lower() == 'true'
+            str2bool(self.args.get('--enable-cli', 'false'))
+            or str2bool(self.args.get('--enable-console', 'false'))
         )
-        self.enable_map = self.args.get('--enable-map', 'false').lower() == 'true'
+        self.enable_map = str2bool(self.args.get('--enable-map', 'false'))
         self.map = eval(self.args.get('--map', 'None'))
 
         self.__check_config()
@@ -77,12 +89,7 @@ class MainProgram:
         if self.runtimes is not None:
             if self.runtimes < 1:
                 raise ValueError('The runtimes must be greater than 0.')
-            if self.runtimes > (self.max - self.min + 1) and self.disable_dedup:
-                logger.critical('出现致命错误:')
-                logger.critical(f'Argument:runtimes = {self.runtimes}')
-                logger.critical(f'Argument:max = {self.max}')
-                logger.critical(f'Argument:min = {self.min}')
-                logger.critical(f'Argument:disable_dedup = {self.disable_dedup}')
+            if self.runtimes > (self.max - self.min + 1) and not self.disable_dedup:
                 raise ValueError('Argument:runtimes grater than Argument:max - Argument:min + 1 but enable dedup')
         if self.enable_map:
             if not isinstance(self.map, dict):
@@ -158,8 +165,10 @@ def main(args):
     try:
         program = MainProgram(args)
         program.run()
-    except Exception as e:
-        logger.critical(e)
+    except KeyboardInterrupt:
+        exit(0)
+    except BaseException as e:
+        logger.critical('出现了一个异常')
         logger.exception(e)
         exit(1)
 
