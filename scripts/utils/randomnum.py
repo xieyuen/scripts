@@ -29,13 +29,15 @@
 
 from random import randint as ri
 
-from scripts.utils import logger
+from scripts.utils.logger import logger
 
 
 __version__ = '0.1'
 
 
 def str2bool(obj: str) -> bool:
+    if not isinstance(obj, str):
+        raise TypeError
     if obj.lower() == 'true':
         return True
     elif obj.lower() == 'false':
