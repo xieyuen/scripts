@@ -109,7 +109,10 @@ class MainProgram:
 
     def __main(self) -> int:
         r = ri(self.min, self.max)
-        while r in self.new and not self.disable_dedup and r in self.ignore_list:
+        while (
+            (not self.disable_dedup and r in self.new)
+            or r in self.ignore_list
+        ):
             r = ri(self.min, self.max)
         self.new.append(r)
         return r
