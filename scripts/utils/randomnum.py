@@ -81,7 +81,7 @@ class MainProgram:
             or str2bool(self.args.get('--enable-console', 'false'))
         )
         self.enable_map = str2bool(self.args.get('--enable-map', 'false'))
-        self.map = eval(self.args.get('--map', 'None'))
+        self.map = eval(self.args.get('--map', 'None'))  # TODO: 从文件读取映射表 考虑支持 .py .json .yaml .txt
 
         self.__check_config()
 
@@ -106,6 +106,11 @@ class MainProgram:
                 logger.warning('The map is not enough.')
                 logger.warning('This may result in drawn numbers cannot matching')
                 logger.warning('The program will ignore this error')
+
+    def __load_map_from_file(self):
+        # TODO: 从文件读取映射表
+        #       考虑支持 .py .json .yaml .txt
+        pass
 
     def __main(self) -> int:
         r = ri(self.min, self.max)
