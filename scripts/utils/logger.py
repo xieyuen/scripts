@@ -2,6 +2,8 @@ import sys
 
 from loguru._logger import Core, Logger
 
+from scripts.constants import logger as constants
+
 __all__ = ["ConsoleLogger", "logger"]
 
 
@@ -22,16 +24,17 @@ class ConsoleLogger:
         self._logger.remove()
         self._logger.add(
             sys.stdout,
-            format="[{time:YYYY-MM-DD HH:mm:ss}] [{level}] | {message}",
+            format=constants.FORMAT,
             level="DEBUG",
         )
         self._logger.add(
             "logs/latest.log",
-            format="[{time:YYYY-MM-DD HH:mm:ss}] [{level}] | {message}",
+            format=constants.FORMAT,
             level="DEBUG",
-            rotation="1 week",
-            retention="100 days",
+            rotation="1 MB",
+            retention="10 weeks",
             encoding="utf-8",
+            compression="zip"
         )
 
         self.trace = self._logger.trace
