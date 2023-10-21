@@ -125,7 +125,7 @@ def main(
     音乐爬虫主程序
     :param name: 歌曲名称
     :param platform: 搜索平台
-    :key path: 下载路径
+    :param path: 下载路径
 
     :return bool: 是否成功
     """
@@ -169,3 +169,7 @@ def main(
     else:
         logger.warning("对不起，暂无搜索结果!")
         return False
+
+
+if __name__ == '__main__':
+    main()

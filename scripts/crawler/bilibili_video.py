@@ -3,7 +3,7 @@ from typing import Optional
 
 import requests
 
-from scripts.constants import crawler
+from scripts.constants import crawler as constants
 
 
 class Main:
@@ -40,8 +40,8 @@ class Main:
         audio_con = requests.get(url=audio_url, headers=constants.BILIBILI_HEADERS).content
         video_con = requests.get(url=video_url, headers=constants.BILIBILI_HEADERS).content
 
-        self.write(audio_con, path='./data/', name='audio.mp3')
-        self.write(video_con, path='./data/', name='video.mp4')
+        self.write(audio_con, name='audio.mp3')
+        self.write(video_con, name='video.mp4')
 
     def run(self):
         pass

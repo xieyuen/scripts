@@ -1,2 +1,2 @@
 # scripts
- Some Python Scrpits
+ Some Python Scripts

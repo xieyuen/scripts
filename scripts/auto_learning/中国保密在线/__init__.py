@@ -15,7 +15,6 @@ import win32con
 from scripts.auto_learning.中国保密在线.url_and_time import URL_AND_TIME
 from scripts.utils.logger import logger
 
-
 __all__ = ['main']
 
 # 全局变量
@@ -39,9 +38,9 @@ def mouse_click(__x, __y):
 # 子线程
 class ChildThread(threading.Thread):  # 继承父类threading.Thread
 
-    def __init__(self, threadID, name, url, video_id=None):
+    def __init__(self, id, name, url, video_id=None):
         threading.Thread.__init__(self)
-        self.threadID = threadID
+        self.threadID = id
         self.name = name
         self.url = url
         if name == "play":
