@@ -2,7 +2,7 @@ import os
 
 import requests
 
-from scripts.utils import logger
+from scripts.utils.logger import logger
 from scripts.constants.crawler import DEFAULT_SAVE_PATH
 
 
@@ -31,6 +31,6 @@ def main(url: str, path: str = DEFAULT_SAVE_PATH) -> bool:
         else:
             logger.error('文件爬取失败')
             return False
-    except:
-        logger.error('爬取失败')
+    except Exception as e:
+        logger.exception(e)
         return False
