@@ -31,7 +31,6 @@ from random import randint as ri
 
 from scripts.utils.logger import logger
 
-
 __version__ = '0.1'
 
 
@@ -68,17 +67,17 @@ class MainProgram:
         if self.runtimes is not None:
             self.runtimes = int(self.runtimes)
         self.ignore_list = (
-            eval(self.args.get('--ignore-list', '[]'))
-            + eval(self.args.get('--ignore', '[]'))
+                eval(self.args.get('--ignore-list', '[]'))
+                + eval(self.args.get('--ignore', '[]'))
         )
         self.disable_dedup = str2bool(self.args.get('--disable-dedup', 'false'))
         self.enable_save = (
-            str2bool(self.args.get('--save', 'false'))
-            or str2bool(self.args.get('-s', 'false'))
+                str2bool(self.args.get('--save', 'false'))
+                or str2bool(self.args.get('-s', 'false'))
         )
         self.enable_cli = (
-            str2bool(self.args.get('--enable-cli', 'false'))
-            or str2bool(self.args.get('--enable-console', 'false'))
+                str2bool(self.args.get('--enable-cli', 'false'))
+                or str2bool(self.args.get('--enable-console', 'false'))
         )
         self.enable_map = str2bool(self.args.get('--enable-map', 'false'))
         self.map = eval(self.args.get('--map', 'None'))  # TODO: 从文件读取映射表 考虑支持 .py .json .yaml .txt
@@ -115,8 +114,8 @@ class MainProgram:
     def __main(self) -> int:
         r = ri(self.min, self.max)
         while (
-            (not self.disable_dedup and r in self.new)
-            or r in self.ignore_list
+                (not self.disable_dedup and r in self.new)
+                or r in self.ignore_list
         ):
             r = ri(self.min, self.max)
         self.new.append(r)

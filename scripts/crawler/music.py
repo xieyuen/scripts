@@ -15,9 +15,8 @@ import os
 import jsonpath
 import requests
 
-from scripts.utils.logger import logger
 from scripts.constants.crawler import URL, HEADERS, DEFAULT_SAVE_PATH
-
+from scripts.utils.logger import logger
 
 """
 编程思路：
@@ -107,8 +106,8 @@ def download_music(url, title, author, *, path: str = DEFAULT_SAVE_PATH):
     # 下载（这种读写文件的下载方式适合少量文件的下载）
     content = requests.get(url).content
     with open(
-        file=path + title + " " + author + ".mp3",
-        mode="wb"
+            file=path + title + " " + author + ".mp3",
+            mode="wb"
     ) as f:
         f.write(content)
 
@@ -116,11 +115,10 @@ def download_music(url, title, author, *, path: str = DEFAULT_SAVE_PATH):
 
 
 def main(
-    name: str = None,
-    platform: str = None,
-    *, path: str = DEFAULT_SAVE_PATH
+        name: str = None,
+        platform: str = None,
+        *, path: str = DEFAULT_SAVE_PATH
 ) -> bool:
-
     """
     音乐爬虫主程序
     :param name: 歌曲名称

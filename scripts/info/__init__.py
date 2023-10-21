@@ -3,7 +3,6 @@
 Copyright (c) 2023 xieyuen
 """
 
-
 VERSION = '0.1'
 LICENSE = 'MIT'
 COPYRIGHT = 'Copyright (c) 2023 xieyuen'
