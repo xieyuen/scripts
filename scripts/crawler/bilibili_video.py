@@ -3,7 +3,7 @@ from typing import Optional
 
 import requests
 
-from scripts.crawler import constants
+from scripts.constants import crawler
 
 
 class Main:
