@@ -1,11 +1,13 @@
+import functools
 from typing import Generator, Union, Callable
 
-from scripts.utils import logger, exceptions, randomnum
+from scripts.utils import exceptions
+from scripts.utils.logger import logger
 from scripts.utils.randomnum import str2bool
 from scripts.utils.jsobj import JSObject
 
 __all__ = [
-    'Mathematics', 'logger', 'exceptions', 'randomnum', 'str2bool'
+    'Mathematics', 'logger', 'exceptions', 'str2bool',
     'JSObject',
 ]
 
@@ -19,7 +21,7 @@ class Mathematics:
     tao: str = '6.283185307179586'
     phi: str = '1.618033988749894'
     g: tuple[str] = '9.80665', 'N/kg'
-    c: tuple[int, str] = 299792458, 'm/s'
+    c: tuple[int, str] = 2_9979_2458, 'm/s'
 
     @staticmethod
     def sumG(
@@ -39,3 +41,26 @@ class Mathematics:
             *args, **kwargs
             ) -> Union[int, float]:
         return sum(cls.sumG(func, _from, _to, *args, **kwargs))
+
+    @classmethod
+    def C(cls, n, m):
+        return cls.factorial(n) / (
+            cls.factorial(m) * cls.factorial(n - m)
+        )
+
+    @classmethod
+    def C2(cls, n, m):
+        if m == 0:
+            return 1
+        if m == 1:
+            return n
+        return cls.C2(n - 1, m - 1) + cls.C2(n - 1, m)
+
+    @classmethod
+    @functools.lru_cache
+    def factorial(cls, n):
+        if n == 0:
+            return 1
+        if n == 1:
+            return 1
+        return n * cls.factorial(n - 1)
