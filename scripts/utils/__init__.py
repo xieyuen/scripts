@@ -2,9 +2,11 @@ from typing import Generator, Union, Callable
 
 from scripts.utils import logger, exceptions, randomnum
 from scripts.utils.randomnum import str2bool
+from scripts.utils.jsobj import JSObject
 
 __all__ = [
     'Mathematics', 'logger', 'exceptions', 'randomnum', 'str2bool'
+    'JSObject',
 ]
 
 
