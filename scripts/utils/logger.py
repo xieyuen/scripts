@@ -11,7 +11,7 @@ Levels = (
     'warning', 'warn', 'error',
     'critical', 'crit'
 )
-Levels.Literal = Literal[
+LevelsLiteral = Literal[
     'trace', 'debug', 'info',
     'warning', 'warn', 'error',
     'critical', 'crit'
@@ -60,7 +60,7 @@ class ConsoleLogger:
         self.catch = self._logger.catch
         self.exception = self._logger.exception
 
-    def log_lines(self, msg: str, level: Levels.Literal):
+    def log_lines(self, msg: str, level: LevelsLiteral):
         """记录多行字符串"""
         if level.lower() not in Levels:
             raise ValueError('Arg:level must be one of the following.')

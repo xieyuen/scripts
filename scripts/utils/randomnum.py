@@ -49,7 +49,7 @@ __version__ = '0.1'
 
 def str2bool(obj: str) -> bool:
     if not isinstance(obj, str):
-        raise TypeError
+        raise TypeError('什么叫做 str to bool?')
     if obj.lower() in ['true', 'yes', '1']:
         return True
     elif obj.lower() in ['false', 'no', '0']:
@@ -67,7 +67,7 @@ class MainProgram:
         self.args = {
             k: v
             for item in args
-            for k, v in item.split('='),
+            for k, v in (item.split('='),)
         }
 
         self.last = []
@@ -77,10 +77,12 @@ class MainProgram:
         self.max = int(self.args['--max'])
         self.min = int(self.args['--min'])
 
+        # runtimes
         self.runtimes = self.args.get('--runtimes', None)
         if self.runtimes is not None:
             self.runtimes = int(self.runtimes)
 
+        # ignore list
         self.ignore_list = (
             eval(self.args.get('--ignore-list', '[]'))
             + eval(self.args.get('--ignore', '[]'))
@@ -92,16 +94,19 @@ class MainProgram:
             self.args.get('--disable-dedup', 'false')
         )
 
+        # save
         self.enable_save = (
             str2bool(self.args.get('--save', 'false'))
             or str2bool(self.args.get('-s', 'false'))
         )
 
+        # cli
         self.enable_cli = (
             str2bool(self.args.get('--enable-cli', 'false'))
             or str2bool(self.args.get('--enable-console', 'false'))
         )
 
+        # mapping
         self.enable_map = str2bool(self.args.get('--enable-map', 'false'))
         if self.enable_map:
             self.map = eval(self.args.get('--map', 'None'))
@@ -117,24 +122,32 @@ class MainProgram:
     def __check_config(self):
         if self.max < self.min:
             raise ValueError('The max number is smaller than the min number.')
+
+        # runtimes
         if self.runtimes is not None:
             if self.runtimes < 1:
                 raise ValueError('The runtimes must be greater than 0.')
             if self.runtimes > (self.max - self.min + 1) and not self.disable_dedup:
                 raise ValueError('Arg:runtimes grater than Arg:max - Arg:min + 1 but enable dedup')
+
+        # ignore list
         if not isinstance(self.ignore_list, list):
             raise TypeError('Arg:--ignore(--ignore-list) must be given a list')
         if not all(isinstance(i, int) for i in self.ignore_list):
             logger.warning('Arg:--ignore(--ignore-list) need be List[int]')
+        # mapping
         if self.enable_map:
+            # type
             if not isinstance(self.map, dict):
-                raise TypeError('Arg:map must be a dict.')
+                raise TypeError('Arg:--map must be a dict.')
+            # key type
             if not all(isinstance(i, int) for i in self.map.keys()):
                 if not all(isinstance(i, int) for i in self.map.values()):
-                    raise TypeError('Arg:map keys must be int.')
+                    raise TypeError('Keys of Arg:map must be int.')
                 logger.warning('It seems that the map key is inverse with the value?')
                 logger.warning('Program will reverse the key to the value.')
                 self.map = {v: k for k, v in self.map.items()}
+            # length
             if len(self.map) < (self.max - self.min + 1):
                 logger.warning('The map is not enough.')
                 logger.warning('This may result in drawn numbers cannot matching')
@@ -142,19 +155,12 @@ class MainProgram:
 
     def __load_map_from_file(self):
         file_type = self.map_file.split('.')[-1]
-        map_file = FileReader(self.map_file, file_type)
-        self.map = map_file.read(encoding=self.encoding, load_to_pyobj_first=True)
+        map_file_reader = FileReader(self.map_file, file_type)
+        self.map = map_file_reader.read(encoding=self.encoding, load_to_pyobj_first=True)
 
     def __main(self) -> int:
-        r = ri(self.min, self.max)
-        while (
-            (not self.disable_dedup and r in self.new)
-            or r in self.ignore_list
-        ):
-            r = ri(self.min, self.max)
         while True:
             r = ri(self.min, self.max)
-
 
             # while
             if not (
