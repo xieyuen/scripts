@@ -1,10 +1,21 @@
 import sys
+from typing import Literal
 
 from loguru._logger import Core, Logger
 
 from scripts.constants import logger as constants
 
 __all__ = ["ConsoleLogger", "logger"]
+Levels = (
+    'trace', 'debug', 'info',
+    'warning', 'warn', 'error',
+    'critical', 'crit'
+)
+Levels.Literal = Literal[
+    'trace', 'debug', 'info',
+    'warning', 'warn', 'error',
+    'critical', 'crit'
+]
 
 
 class ConsoleLogger:
@@ -48,6 +59,14 @@ class ConsoleLogger:
         self.crit = self._logger.critical
         self.catch = self._logger.catch
         self.exception = self._logger.exception
+
+    def log_lines(self, msg: str, level: Levels.Literal):
+        """记录多行字符串"""
+        if level.lower() not in Levels:
+            raise ValueError('Arg:level must be one of the following.')
+        level = level.lower()
+        for m in msg.splitlines():
+            self.__dict__[level](m)
 
 
 logger = ConsoleLogger()
