@@ -86,7 +86,11 @@ class MainProgram:
             + eval(self.args.get('--ignore', '[]'))
         )
 
-        self.disable_dedup = str2bool(self.args.get('--disable-dedup', 'false'))
+
+        # disable dedup
+        self.disable_dedup = str2bool(
+            self.args.get('--disable-dedup', 'false')
+        )
 
         self.enable_save = (
             str2bool(self.args.get('--save', 'false'))
@@ -118,6 +122,10 @@ class MainProgram:
                 raise ValueError('The runtimes must be greater than 0.')
             if self.runtimes > (self.max - self.min + 1) and not self.disable_dedup:
                 raise ValueError('Arg:runtimes grater than Arg:max - Arg:min + 1 but enable dedup')
+        if not isinstance(self.ignore_list, list):
+            raise TypeError('Arg:--ignore(--ignore-list) must be given a list')
+        if not all(isinstance(i, int) for i in self.ignore_list):
+            logger.warning('Arg:--ignore(--ignore-list) need be List[int]')
         if self.enable_map:
             if not isinstance(self.map, dict):
                 raise TypeError('Arg:map must be a dict.')
