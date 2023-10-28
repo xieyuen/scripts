@@ -4,7 +4,7 @@
 比如：
 
 ```bash
-$ python -m scripts.utils.randomnum --max=10 --min=1 --ignore=[4]
+$ python -m scripts.utils.randomnum --max=10 --min=1 --ignore=[4] --runtimes=3
 ```
 
 当然，它肯定不止抽人，这只是 random.randint 的一个简单包装
