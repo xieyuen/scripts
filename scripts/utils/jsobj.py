@@ -33,8 +33,5 @@ class JSObject(dict):
     def __repr__(self):
         return f"JSObject({super().__repr__()})"
 
-    def __str__(self):
-        return f"JSObject({super().__str__()})"
-
     def copy(self):
         return JSObject(**self)
