@@ -152,6 +152,23 @@ class MainProgram:
             or r in self.ignore_list
         ):
             r = ri(self.min, self.max)
+        while True:
+            r = ri(self.min, self.max)
+
+
+            # while
+            if not (
+                # 重抽的条件
+                # 1. 已抽且未禁用去重
+                (
+                  not self.disable_dedup
+                  and r in self.new
+                )
+                # 2. 在忽略列表
+                or (
+                  r in self.ignore_list
+                )
+            ): break
         self.new.append(r)
         return r
 
