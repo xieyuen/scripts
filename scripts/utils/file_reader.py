@@ -1,5 +1,5 @@
 import json
-from typing import TextIO, Optional, Callable
+from typing import TextIO, Optional, Callable, Any
 from pathlib import Path
 
 import yaml
@@ -25,17 +25,22 @@ class FileReader:
     def change_file_type(self, value: str):
         self.file_type = self.constants.TYPE_MAP[value.lower()]
 
-    def read(self, reader: Optional[Callable] = None, *, encoding='utf-8', load_to_pyobj_first=False):
+    def read(
+        self,
+        reader: Optional[Callable] = None,
+        *,
+        encoding='utf-8',
+        load_to_pyobj_first=False
+    ) -> Any:
         """
         读取文件, 若传入 reader 则会将文件流传给 reader 并返回 reader 的返回
         若生成实例时未传入 file_type, 则返回包含文件内容的字符串
 
-        Args:
-            reader: Optional[Callable]          | 内容处理
-            encoding: str ='utf-8'              | 编码
-            load_to_pyobj_first: bool = False   | 是否先将文件内容转换为 python 对象再传给 reader
 
-        Returns: Any
+        :param reader: Optional[Callable]          | 内容处理
+        :param encoding: str ='utf-8'              | 编码
+        :param load_to_pyobj_first: bool = False   | 是否先将文件内容转换为 python 对象再传给 reader
+        :return: Union[str, Any]
         """
         if reader is not None:
             with self.file.open(encoding=encoding) as f:
@@ -58,3 +63,6 @@ class FileReader:
 
             case FileReader.TYPES.json:
                 return json.load(file_io)
+
+            case FileReader.TYPES.text:
+                return file_io.read()
