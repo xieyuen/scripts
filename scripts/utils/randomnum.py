@@ -34,6 +34,9 @@ $ python -m scripts.utils.randomnum --max=10 --min=1 --ignore=[4] --runtimes=3
                             和 ``--map`` 一样，请使用 python 格式输入，例如：--ignore-list=[1,2,3]
                             注意不要有空格
     --ignore                同 ``--ignore-list``
+    --increase=[]           这是干嘛的自己看源码 (
+                            使用前需要 ``--enable-increase=true``
+                            也是要以 python 列表形式进行输入，例如：--increase=[1,2,3]，不要空格
 
 注意：所有的参数都需要输入值，否则为默认值。
 但如果你输入了前半部分而没有输入等号及后面的，这将会抛出 ValueError
@@ -44,7 +47,7 @@ from random import randint as ri
 from scripts.utils.file_reader import FileReader
 from scripts.utils.logger import logger
 
-__version__ = '0.1'
+__version__ = '1.0.0'
 
 
 def str2bool(obj: str) -> bool:
@@ -88,6 +91,13 @@ class MainProgram:
             + eval(self.args.get('--ignore', '[]'))
         )
 
+        # increase~
+        self.enable_increase = str2bool(
+            self.args.get('--enable-increase', 'false')
+        )
+        self.increase_list = (
+            eval(self.args.get('--increase', '[]'))
+        )
 
         # disable dedup
         self.disable_dedup = str2bool(
@@ -135,6 +145,13 @@ class MainProgram:
             raise TypeError('Arg:--ignore(--ignore-list) must be given a list')
         if not all(isinstance(i, int) for i in self.ignore_list):
             logger.warning('Arg:--ignore(--ignore-list) need be List[int]')
+
+        # increase~
+        if not isinstance(self.increase_list, list):
+            raise TypeError('Arg:--increase must be a list')
+        if not all(isinstance(i, int) for i in self.increase_list):
+            logger.warning('Arg:--increase need be List[int]')
+
         # mapping
         if self.enable_map:
             # type
@@ -161,6 +178,10 @@ class MainProgram:
     def __main(self) -> int:
         while True:
             r = ri(self.min, self.max)
+
+            # increase~
+            if self.enable_increase and r not in self.increase_list:
+                r = ri(self.min, self.max)
 
             # while
             if not (
