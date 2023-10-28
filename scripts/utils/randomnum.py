@@ -188,8 +188,7 @@ class MainProgram:
                 # 重抽的条件
                 # 1. 已抽且未禁用去重
                 (
-                  not self.disable_dedup
-                  and r in self.new
+                  not self.disable_dedup and r in self.new
                 )
                 # 2. 在忽略列表
                 or (
