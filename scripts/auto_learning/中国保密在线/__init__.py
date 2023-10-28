@@ -38,9 +38,9 @@ def mouse_click(__x, __y):
 # 子线程
 class ChildThread(threading.Thread):  # 继承父类threading.Thread
 
-    def __init__(self, id, name, url, video_id=None):
+    def __init__(self, threadID, name, url, video_id=None):
         threading.Thread.__init__(self)
-        self.threadID = id
+        self.threadID = threadID
         self.name = name
         self.url = url
         if name == "play":
