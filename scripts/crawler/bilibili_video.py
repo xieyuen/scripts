@@ -21,7 +21,7 @@ class Main:
     class Enables:
         enable_cli: bool
 
-    def write(self, data: bytes, name):
+    def __write(self, data: bytes, name):
         if not os.path.exists(self.path):
             os.mkdir(self.path)
 
@@ -40,8 +40,8 @@ class Main:
         audio_con = requests.get(url=audio_url, headers=constants.BILIBILI_HEADERS).content
         video_con = requests.get(url=video_url, headers=constants.BILIBILI_HEADERS).content
 
-        self.write(audio_con, name='audio.mp3')
-        self.write(video_con, name='video.mp4')
+        self.__write(audio_con, name='audio.mp3')
+        self.__write(video_con, name='video.mp4')
 
     def run(self):
         pass
