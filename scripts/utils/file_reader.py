@@ -1,6 +1,6 @@
 import json
-from typing import TextIO, Optional, Callable, Any
 from pathlib import Path
+from typing import TextIO, Optional, Callable, Any
 
 import yaml
 
@@ -8,16 +8,18 @@ from scripts.utils.jsobj import JSObject
 
 
 class FileReader:
-    constants = JSObject()
-    constants.DEFAULT_CODING = 'utf-8'
-    constants.TYPE_MAP = JSObject(
-        yaml='yaml', yml='yaml',
-        text='text', txt='text',
-        json='json',
+    constants = JSObject(
+        DEFAULT_CODING='utf-8',
+        TYPE_MAP=JSObject(
+            none='text', null='text', undefined='text',
+            text='text', txt='text',
+            yaml='yaml', yml='yaml',
+            json='json',
+        )
     )
     TYPES = constants.TYPE_MAP
 
-    def __init__(self, path: str, file_type: str = None):
+    def __init__(self, path: str, file_type: str = 'none'):
         self.file = Path(path)
         self.file_name = self.file.name
         self.file_type = self.constants.TYPE_MAP[file_type.lower()]
@@ -26,11 +28,11 @@ class FileReader:
         self.file_type = self.constants.TYPE_MAP[value.lower()]
 
     def read(
-        self,
-        reader: Optional[Callable] = None,
-        *,
-        encoding='utf-8',
-        load_to_pyobj_first=False
+            self,
+            reader: Optional[Callable] = None,
+            *,
+            encoding='utf-8',
+            load_to_pyobj_first=False
     ) -> Any:
         """
         读取文件, 若传入 reader 则会将文件流传给 reader 并返回 reader 的返回
@@ -50,9 +52,9 @@ class FileReader:
         return self.__read(self.file.open(encoding=encoding), self.file_type)
 
     @staticmethod
-    def __read(file_io: TextIO, file_type: str) -> object:
+    def __read(file_io: TextIO, file_type: str) -> Any:
         match file_type:
-            case None:
+            case FileReader.TYPES.text:
                 return file_io.read()
 
             case FileReader.TYPES.yaml:
@@ -63,6 +65,3 @@ class FileReader:
 
             case FileReader.TYPES.json:
                 return json.load(file_io)
-
-            case FileReader.TYPES.text:
-                return file_io.read()
