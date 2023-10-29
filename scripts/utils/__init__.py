@@ -1,10 +1,10 @@
 import functools
-from typing import Generator, Union, Callable
+from typing import Generator, Callable
 
 from scripts.utils import exceptions
-from scripts.utils.logger import logger
-from scripts.utils.randomnum import str2bool
 from scripts.utils.jsobj import JSObject
+from scripts.utils.logger import logger
+from scripts.utils.string_to import str2bool
 
 __all__ = [
     'Mathematics', 'logger', 'exceptions', 'str2bool',
@@ -39,17 +39,17 @@ class Mathematics:
             _from: int,
             _to: int,
             *args, **kwargs
-            ) -> Union[int, float]:
+            ) -> int | float:
         return sum(cls.sumG(func, _from, _to, *args, **kwargs))
 
     @classmethod
-    def C(cls, n, m):
+    def C(cls, n: int, m: int) -> int:
         return cls.factorial(n) / (
             cls.factorial(m) * cls.factorial(n - m)
         )
 
     @classmethod
-    def C2(cls, n, m):
+    def C2(cls, n: int, m: int) -> int:
         if m == 0:
             return 1
         if m == 1:

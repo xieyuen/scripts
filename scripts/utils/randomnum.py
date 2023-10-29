@@ -46,19 +46,9 @@ from random import randint as ri
 
 from scripts.utils.file_reader import FileReader
 from scripts.utils.logger import logger
+from scripts.utils.string_to import str2bool
 
 __version__ = '1.0.0'
-
-
-def str2bool(obj: str) -> bool:
-    if not isinstance(obj, str):
-        raise TypeError('什么叫做 str to bool?')
-    if obj.lower() in ['true', 'yes', '1']:
-        return True
-    elif obj.lower() in ['false', 'no', '0']:
-        return False
-    else:
-        raise ValueError(f'{obj} 不是有效的 bool 值')
 
 
 class MainProgram:
@@ -87,8 +77,8 @@ class MainProgram:
 
         # ignore list
         self.ignore_list = (
-            eval(self.args.get('--ignore-list', '[]'))
-            + eval(self.args.get('--ignore', '[]'))
+                eval(self.args.get('--ignore-list', '[]'))
+                + eval(self.args.get('--ignore', '[]'))
         )
 
         # increase~
@@ -106,14 +96,14 @@ class MainProgram:
 
         # save
         self.enable_save = (
-            str2bool(self.args.get('--save', 'false'))
-            or str2bool(self.args.get('-s', 'false'))
+                str2bool(self.args.get('--save', 'false'))
+                or str2bool(self.args.get('-s', 'false'))
         )
 
         # cli
         self.enable_cli = (
-            str2bool(self.args.get('--enable-cli', 'false'))
-            or str2bool(self.args.get('--enable-console', 'false'))
+                str2bool(self.args.get('--enable-cli', 'false'))
+                or str2bool(self.args.get('--enable-console', 'false'))
         )
 
         # mapping
@@ -185,15 +175,15 @@ class MainProgram:
 
             # while
             if not (
-                # 重抽的条件
-                # 1. 已抽且未禁用去重
-                (
-                  not self.disable_dedup and r in self.new
-                )
-                # 2. 在忽略列表
-                or (
-                  r in self.ignore_list
-                )
+                    # 重抽的条件
+                    # 1. 已抽且未禁用去重
+                    (
+                            not self.disable_dedup and r in self.new
+                    )
+                    # 2. 在忽略列表
+                    or (
+                            r in self.ignore_list
+                    )
             ): break
         self.new.append(r)
         return r
