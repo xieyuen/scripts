@@ -33,19 +33,19 @@ class Mathematics:
         for i in range(_from, _to):
             yield func(i, *args, **kwargs)
 
-    @classmethod
-    def sum(cls,
+    @staticmethod
+    def sum(
             func: Callable,
             _from: int,
             _to: int,
             *args, **kwargs
-            ) -> int | float:
-        return sum(cls.sumG(func, _from, _to, *args, **kwargs))
+    ) -> int | float:
+        return sum(Mathematics.sumG(func, _from, _to, *args, **kwargs))
 
     @classmethod
     def C(cls, n: int, m: int) -> int:
         return cls.factorial(n) / (
-            cls.factorial(m) * cls.factorial(n - m)
+                cls.factorial(m) * cls.factorial(n - m)
         )
 
     @classmethod
