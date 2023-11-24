@@ -1,6 +1,8 @@
 from _typeshed import Incomplete
 from typing import Literal
 
+from loguru._logger import Logger
+
 
 class ConsoleLogger:
     trace: Incomplete
@@ -15,7 +17,7 @@ class ConsoleLogger:
     catch: Incomplete
     exception: Incomplete
 
-    def __init__(self) -> None: ...
+    _logger: Logger
 
     def log_lines(self, msg: str, level: Literal[
         'trace', 'debug', 'info',
