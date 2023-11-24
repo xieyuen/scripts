@@ -8,7 +8,7 @@ from scripts.utils.jsobj import JSObject
 
 
 class FileReader:
-    constants = JSObject(
+    __consts = JSObject(
         DEFAULT_CODING='utf-8',
         TYPE_MAP=JSObject(
             none='text', null='text', undefined='text',
@@ -17,15 +17,17 @@ class FileReader:
             json='json',
         )
     )
-    TYPES = constants.TYPE_MAP
+    TYPES = __consts.TYPE_MAP
 
     def __init__(self, path: str, file_type: str = 'none'):
-        self.file = Path(path)
-        self.file_name = self.file.name
-        self.file_type = self.constants.TYPE_MAP[file_type.lower()]
+        self.__file = Path(path)
+        self.__file_io = None
+        self.__file_name = self.__file.name
+        self.__file_type = self.__consts.TYPE_MAP[file_type.lower()]
+        self.states = self.__States(self)
 
     def change_file_type(self, value: str):
-        self.file_type = self.constants.TYPE_MAP[value.lower()]
+        self.__file_type = self.__consts.TYPE_MAP[value.lower()]
 
     def read(
             self,
@@ -45,11 +47,11 @@ class FileReader:
         :return: Union[str, Any]
         """
         if reader is not None:
-            with self.file.open(encoding=encoding) as f:
+            with self.__file.open(encoding=encoding) as f:
                 if load_to_pyobj_first:
-                    return reader(self.__read(f, self.file_type))
+                    return reader(self.__read(f, self.__file_type))
                 return reader(f)
-        return self.__read(self.file.open(encoding=encoding), self.file_type)
+        return self.__read(self.__file.open(encoding=encoding), self.__file_type)
 
     @staticmethod
     def __read(file_io: TextIO, file_type: str) -> Any:
@@ -65,3 +67,11 @@ class FileReader:
 
             case FileReader.TYPES.json:
                 return json.load(file_io)
+
+    def open(self):
+        self.__file_io = self.__file.open()
+        return self.__file_io
+
+    def close(self):
+        self.__file_io.close()
+
