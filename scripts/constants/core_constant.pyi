@@ -1,3 +1,0 @@
-NAME: str
-VERSION: str
-GITHUB_URL: str
