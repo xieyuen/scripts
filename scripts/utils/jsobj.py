@@ -10,6 +10,9 @@ class JSObject(dict):
         super().__init__(*args, **kwargs)
         self.__dict__.update(self)
 
+    def __contains__(self, item):
+        return item in self.__dict__ or super().__contains__(item)
+
     def __setitem__(self, key, value, *, from_setattr=False):
         if isinstance(key, str) and not from_setattr:
             self.__setattr__(key, value, from_setitem=True)
