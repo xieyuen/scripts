@@ -17,7 +17,8 @@ $ python -m scripts.utils.randomnum --max=10 --min=1 --ignore=[4] --runtimes=3
     --min   最小值
 
 可选参数：
-    --enable-cli=true       是否启用控制台
+    TODO: --load-config-from-file  将所有的配置从文件中读取
+    --enable-cli=false      是否启用控制台
     --enable-console        同 ``--enable-cli``
     --save=false            是否保存结果
         --save-filename='return'
@@ -179,12 +180,11 @@ class MainProgram:
                     # 1. 已抽且未禁用去重
                     (
                             not self.disable_dedup and r in self.new
-                    )
-                    # 2. 在忽略列表
-                    or (
+                    ) or (  # 2. 在忽略列表
                             r in self.ignore_list
                     )
-            ): break
+            ):
+                break
         self.new.append(r)
         return r
 
