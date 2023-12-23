@@ -1,5 +1,6 @@
 import json
 from configparser import ConfigParser
+from enum import auto
 from pathlib import Path
 from typing import TextIO, Optional, Callable, Any
 
@@ -12,13 +13,14 @@ class FileReader:
     __consts = JSObject(
         DEFAULT_CODING='utf-8',
         TYPE_MAP=JSObject(
-            none='text', null='text', undefined='text', text='text', txt='text',
-            yaml='yaml', yml='yaml',
-            json='json',
-            ini='ini'
+            none=(_test := auto()), null=_test, undefined=_test, text=_test, txt=_test,
+            yaml=(_yaml := auto()), yml=_yaml,
+            json=auto(),
+            ini=auto(),
         )
     )
     TYPES = __consts.TYPE_MAP
+    del _yaml, _test
 
     def __init__(self, path: str, file_type: str = 'none'):
         self.__file = Path(path)
@@ -49,27 +51,27 @@ class FileReader:
         with self.__file.open(encoding=encoding) as f:
             if reader is not None:
                 if load_to_pyobj_first:
-                    return reader(self.__read(f, self.__file_type))
+                    return reader(self.__read(f))
                 return reader(f)
-            return self.__read(f, self.__file_type)
+            return self.__read(f)
 
-    def __read(self, file_io: TextIO, file_type: str) -> Any:
-        match file_type:
-            case FileReader.TYPES.text:
+    def __read(self, file_io: TextIO) -> Any:
+        match self.__file_type:
+            case self.TYPES.text:
                 return file_io.read()
 
-            case FileReader.TYPES.yaml:
+            case self.TYPES.yaml:
                 data = dict()
                 for d in yaml.safe_load_all(file_io):
                     data.update(d)
                 return data
 
-            case FileReader.TYPES.json:
+            case self.TYPES.json:
                 return json.load(file_io)
 
-            case FileReader.TYPES.ini:
+            case self.TYPES.ini:
                 config = ConfigParser()
-                config.read(self.__file.name)
+                config.read(str(self.__file), encoding='utf-8')
                 return config
 
     def open(self):
@@ -78,3 +80,7 @@ class FileReader:
 
     def close(self):
         self.__file_io.close()
+
+
+if __name__ == '__main__':
+    print(FileReader.TYPES.json)

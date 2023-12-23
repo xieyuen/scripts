@@ -67,6 +67,11 @@ class MainProgram:
         self.last = []
         self.new = []
 
+        if '--cfg-file' in self.args:
+            self.args = FileReader(self.args['--cfg-file'])
+            self.args.read(load_to_pyobj_first=True)
+            return
+
         # --- Some important arguments and configs --- #
         self.max = int(self.args['--max'])
         self.min = int(self.args['--min'])
