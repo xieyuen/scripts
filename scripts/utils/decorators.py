@@ -1,5 +1,9 @@
-from types import FunctionType
 from typing import Callable, Tuple, Literal, Any, Optional, NoReturn
+
+__all__ = [
+    'print_return', 'add_return_code', 'print_return_code',
+    'run_now', 'curry',
+]
 
 
 def print_return(callback: Callable) -> Callable:
@@ -88,7 +92,7 @@ def run_now(callback: Callable[[...], ...], *args, exc=Exception, **kwargs):
     return Wrapper()
 
 
-def curry(func: FunctionType) -> Callable:
+def curry(func: Callable) -> Callable:
     """
     Decorator for currying a function.
     """

@@ -64,21 +64,3 @@ class Mathematics:
         if n == 1:
             return 1
         return n * cls.factorial(n - 1)
-
-
-def curry(callback):
-    """
-    Currying a function
-    """
-
-    def _curry(*args, **kwargs):
-        if not (0 <= len(args) + len(kwargs) <= 1):
-            raise TypeError(f"{callback} missing 1 required positional argument: 'a'")
-        if callback.__code__.co_argcount == 0:
-            return callback()
-        elif callback.__code__.co_argcount == 1:
-            return callback(*args, **kwargs)
-        else:
-            return curry(lambda *a, **kw: callback(*args, *a, **kwargs, **kw))
-
-    return _curry
