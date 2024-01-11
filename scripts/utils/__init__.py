@@ -1,5 +1,5 @@
 import functools
-from typing import Generator, Callable
+from typing import Generator, Callable, Iterable
 
 from scripts.utils import exceptions
 from scripts.utils.jsobj import JSObject
@@ -8,7 +8,7 @@ from scripts.utils.string_to import str2bool
 
 __all__ = [
     'Mathematics', 'logger', 'exceptions', 'str2bool',
-    'JSObject',
+    'JSObject', 'dedup',
 ]
 
 
@@ -64,3 +64,11 @@ class Mathematics:
         if n == 1:
             return 1
         return n * cls.factorial(n - 1)
+
+
+def dedup(li: Iterable) -> Generator:
+    inLi = []
+    for index, item in enumerate(li):
+        if item not in inLi:
+            inLi.append(item)
+            yield item

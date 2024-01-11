@@ -1,17 +1,19 @@
 URL = "https://music.liuzhijin.cn/"
 
-HEADERS = {
+USER_AGENT = {
     "user-agent":
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-        "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36",
+        "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36"
+}
+
+HEADERS = {
+    **USER_AGENT,
     # 判断请求是异步还是同步
     "x-requested-with": "XMLHttpRequest",
 }
 
 BILIBILI_HEADERS = {
-    "user-agent":
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-        "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36",
+    **USER_AGENT,
     "referer": "https://www.bilibili.com/",
 }
 

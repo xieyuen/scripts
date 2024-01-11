@@ -102,7 +102,7 @@ class Domain:
             return
         if self.__type == TypeStates.INTERVAL:
             if any(not isinstance(config, bool) for config in (self.left_closed, self.right_closed)):
-                raise TypeError("Interval's closed config only allows boolean")
+                raise TypeError("Closed configurations of interval only allows boolean")
             if not all(isinstance(i, Real) for i in self.__domain):
                 raise TypeError('Interval only allows real number')
 
