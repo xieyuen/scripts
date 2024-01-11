@@ -2,7 +2,7 @@ from typing import Callable, Tuple, Literal, Any, Optional, NoReturn
 
 __all__ = [
     'print_return', 'add_return_code', 'print_return_code',
-    'run_now', 'curry',
+    'curry',
 ]
 
 
@@ -64,46 +64,3 @@ def print_return_code(callback: Callable) -> Callable:
             return self.__e
 
     return Wrapper(callback)
-
-
-def run_now(callback: Callable[[...], ...], *args, exc=Exception, **kwargs):
-    class Wrapper:
-        def __init__(self):
-            try:
-                self.result = callback(*args, **kwargs)
-            except exc as e:
-                self.e = e
-
-        @property
-        def keyword_arguments(self):
-            return kwargs
-
-        @property
-        def position_arguments(self):
-            return args
-
-        @property
-        def arguments(self):
-            return self.position_arguments, self.keyword_arguments
-
-        def __repr__(self):
-            return self.result
-
-    return Wrapper()
-
-
-def curry(func: Callable) -> Callable:
-    """
-    Decorator for currying a function.
-    """
-
-    def curried(*args, **kwargs):
-        if len(args) + len(kwargs) >= func.__code__.co_argcount:
-            return func(*args, **kwargs)
-        else:
-            return (
-                lambda *more_args, **more_kwargs:
-                curried(*(args + more_args), **{**kwargs, **more_kwargs})
-            )
-
-    return curried
