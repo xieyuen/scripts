@@ -1,6 +1,17 @@
-class PythonVersionError(Exception):
+class MusicNotFoundError(Exception):
     pass
 
 
-class CriticalError(Exception):
+class UnknownErrors(Exception):
     pass
+
+
+class UnknownError(UnknownErrors):
+    pass
+
+
+class PathNotExistsError(UnknownErrors):
+    pass
+
+
+UnknownPathError = PathNotExistsError
