@@ -12,6 +12,3 @@ class UnknownError(UnknownErrors):
 
 class PathNotExistsError(UnknownErrors):
     pass
-
-
-UnknownPathError = PathNotExistsError

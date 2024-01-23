@@ -52,6 +52,7 @@ def add_return_code(callback: Callable) -> Callable[[...], Tuple[Literal[0, 1], 
         else:
             return 0, result
 
+    wrapper.has_return_code = True
     return wrapper
 
 
@@ -59,7 +60,15 @@ def print_return_code(callback: Callable) -> Callable:
     """
     Decorator for printing the return code of a function.
     """
+    if hasattr(callback, 'has_return_code') and callback.has_return_code:
+        def _res(*args, **kwargs):
+            code, result = callback(*args, **kwargs)
+            print(f'Callable: {callback.__name__} returns with code {code}')
+            return result
 
+        return _res
+
+    # else:
     class Wrapper:
         def __init__(self, __call):
             self.__e = None  # type: Optional[Exception]
