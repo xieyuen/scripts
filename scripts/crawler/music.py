@@ -1,10 +1,16 @@
+"""
+Music Crawler
+
+支持网易云、QQ、酷狗、酷我、百度和喜马拉雅
+搜索技术由 `https://music.liuzhijin.cn/` 提供支持
+"""
+
 import os
 from typing import TypedDict, Literal
 
 import requests
 from jsonpath import jsonpath
 
-from scripts.utils import dedup
 from scripts.utils.decorators import curry
 from scripts.utils.exceptions import MusicNotFoundError, PathNotExistsError
 
@@ -54,21 +60,22 @@ class Constants:
             ), (
                 (
                     '6', 'x', 'xi', 'xmly', 'xmla', 'ximalaya', '喜马拉雅'
-                ), 'xiamlaya'
+                ), 'ximalaya'
             ),
         ) for k in keys
     }
 
 
-class ParamType(TypedDict):
+class Param(TypedDict):
     input: str
     filter: Literal['name']
-    type: Literal[*dedup(Constants.platformMap.values())]
+    type: Literal['netease', 'qq', 'kugou', 'kuwo', 'baidu', 'ximalaya']
+    page: int
 
 
 class Crawler:
     @staticmethod
-    def getParam(name: str, platform: str) -> dict:
+    def getParam(name: str, platform: str) -> Param:
         return {
             "input": name,
             "filter": "name",
@@ -78,45 +85,60 @@ class Crawler:
 
     @staticmethod
     @curry
-    def download(url, author, title, *, path=Constants.defaultSavePath):
-        if hasattr(Constants, 'savePath') and Constants.defaultSavePath != Constants.savePath:
-            path = Constants.savePath
-
+    def download(url, author, title, *, path):
         print(f'{author}-{title} 正在下载...')
         with open(f"{path}/{title}-{author}.mp3", mode='wb') as f:
             f.write(requests.get(url).content)
 
     def main(self):
-        download = self.download
+        name = input("请输入歌曲名:")
+        platforms = input(
+            f"脚本支持以下平台:\n{Constants.platformInfo}\n请选择平台(可多个,用英文逗号隔开): "
+        ).split(',')
 
-        param = self.getParam(
-            name=input("请输入歌曲名:"),
-            platform=input(
-                f"脚本支持以下平台:\n{Constants.platformInfo}\n请选择平台: ")
-        )
-        json_text = requests.post(
-            url=Constants.searchURL,
-            data=param,
-            headers=Constants.headers,
-        ).json()
+        titles = []
+        authors = []
+        urls = []
 
-        titles = jsonpath(json_text, '$..title')
-        authors = jsonpath(json_text, '$..author')
-        urls = jsonpath(json_text, '$..url')
+        for platform in platforms:
+            param = self.getParam(
+                name=name,
+                platform=platform
+            )
+            json_text = requests.post(
+                url=Constants.searchURL,
+                data=param,
+                headers=Constants.headers,
+            ).json()
 
-        if not titles:
+            titles.append(jsonpath(json_text, '$..title'))
+            authors.append(jsonpath(json_text, '$..author'))
+            urls.append(jsonpath(json_text, '$..url'))
+
+        if not titles[0]:
             raise MusicNotFoundError(Constants.musicNotFoundMsg)
 
         print("-------------------------------------------------------\n查找到以下歌曲:\n")
-        for index, (t, a) in enumerate(zip(titles, authors)):
-            print(f"{index + 1} | {t} - {a}")
+
+        index = 1
+        shouldIgnores = []
+        for i, (platform, tits, diffAuthor) in enumerate(zip(platforms, titles, authors)):
+            if not diffAuthor:
+                print(f'未在{platform}平台查询到歌曲')
+                shouldIgnores.append(i)
+                continue
+            print(f"{platform}平台:")
+            for t, a in zip(tits, diffAuthor):
+                print(f"{index} | {t} - {a}")
+                index += 1  # index++
+
+        titles = [i for ind, item in enumerate(titles) if ind not in shouldIgnores for i in item]
+        authors = [i for ind, item in enumerate(authors) if ind not in shouldIgnores for i in item]
+        urls = [i for ind, item in enumerate(urls) if ind not in shouldIgnores for i in item]
 
         indexes = input("请输入您想下载的歌曲版本(填序号,多个用英文逗号隔开):").split(',')
 
-        if not (
-                hasattr(Constants, 'savePath')
-                and Constants.defaultSavePath != Constants.savePath
-        ):
+        if not hasattr(Constants, 'savePath'):
             savePath = input("请输入保存路径(空则为脚本所在路径):")
         else:
             savePath = None
@@ -124,7 +146,9 @@ class Crawler:
         if savePath:
             if not os.path.exists(savePath):
                 raise PathNotExistsError('不存在的路径')
-            download = download(path=savePath)
+            download = self.download(path=savePath)
+        else:
+            download = self.download(path=Constants.defaultSavePath)
 
         for i in indexes:
             i = int(i) - 1
