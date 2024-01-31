@@ -6,20 +6,21 @@ Music Crawler
 """
 
 import os
-from typing import TypedDict, Literal
+from typing import TypedDict, Literal, List
 
 import requests
 from jsonpath import jsonpath
 
 from scripts.utils.decorators import curry
 from scripts.utils.exceptions import MusicNotFoundError, PathNotExistsError
+from scripts.utils.logger import logger
 
 
 class Constants:
-    musicNotFoundMsg = "对不起，暂无搜索结果!"
-    defaultSavePath = './'
-    searchURL = 'https://music.liuzhijin.cn/'
-    headers = {
+    MUSIC_NOT_FOUND_MESSAGE = "对不起，暂无搜索结果!"
+    DEFAULT_SAVE_PATH = './'
+    SEARCH_URL = 'https://music.liuzhijin.cn/'
+    HEADERS = {
         "user-agent":
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
             "AppleWebKit/537.36 (KHTML, like Gecko) "
@@ -27,7 +28,7 @@ class Constants:
         # 判断请求是异步还是同步
         "x-requested-with": "XMLHttpRequest",
     }
-    platformInfo = (
+    PLATFORM_INFORMATION = (
         "1.网易云:netease\n"
         "2.QQ:qq\n"
         "3.酷狗:kugou\n"
@@ -35,7 +36,7 @@ class Constants:
         "5.百度:baidu\n"
         "6.喜马拉雅:ximalaya"
     )
-    platformMap = {
+    PLATFORM_MAP = {
         k: v for keys, v in (
             (
                 (
@@ -64,6 +65,27 @@ class Constants:
             ),
         ) for k in keys
     }
+    PLATFORM_NAMES_MAP = {
+        'netease': '网易云音乐',
+        'qq': 'QQ音乐',
+        'kugou': '酷狗音乐',
+        'kuwo': '酷我音乐',
+        'baidu': '百度',
+        'ximalaya': '喜马拉雅',
+    }
+
+
+class Temp:
+    def __init__(self):
+        self.__ignore = None
+
+    @property
+    def ignore(self):
+        return self.__ignore
+
+    @ignore.setter
+    def ignore(self, value):
+        self.__ignore = value
 
 
 class Param(TypedDict):
@@ -74,28 +96,74 @@ class Param(TypedDict):
 
 
 class Crawler:
+
+    def __init__(self):
+        self.temp = Temp()
+
     @staticmethod
     def getParam(name: str, platform: str) -> Param:
         return {
             "input": name,
             "filter": "name",
-            "type": Constants.platformMap[platform],
+            "type": Constants.PLATFORM_MAP[platform],
             "page": 1,
         }
 
     @staticmethod
+    def getPlatformName(platform):
+        return Constants.PLATFORM_NAMES_MAP[Constants.PLATFORM_MAP[platform]]
+
+    @staticmethod
     @curry
     def download(url, author, title, *, path):
-        print(f'{author}-{title} 正在下载...')
-        with open(f"{path}/{title}-{author}.mp3", mode='wb') as f:
-            f.write(requests.get(url).content)
+        logger.info(f'{author}-{title} 正在下载...')
+        try:
+            with open(f"{path}/{title}-{author}.mp3", mode='wb') as f:
+                f.write(requests.get(url).content)
+            logger.info(f'{author}-{title} 下载完成!')
+        except Exception as e:
+            logger.error(f'{author}-{title} 下载失败: {e}')
 
-    def main(self):
-        name = input("请输入歌曲名:")
-        platforms = input(
-            f"脚本支持以下平台:\n{Constants.platformInfo}\n请选择平台(可多个,用英文逗号隔开): "
-        ).split(',')
+    @staticmethod
+    def getIgnoredArgs(ignored_indexes, *args) -> List:
+        def _get(a):
+            res = []
+            for index, item in enumerate(a):
+                if index in ignored_indexes:
+                    continue
+                for i in item:
+                    res.append(i)
 
+        return [_get(i) for i in args]
+
+    def printSearchedInfo(
+            self,
+            platforms: List[str],
+            titles: List[str],
+            authors: List[str],
+            urls: List[str],
+    ):
+        """
+        打印搜索到的音乐信息并将搜索失败的平台索引记录在 self.temp.ignore 中
+        """
+        index = 1
+        ignoredIndexes = []
+        for i, (platform, tits, authors_in_plat, u) in enumerate(zip(platforms, titles, authors, urls)):
+            platform = self.getPlatformName(platform)
+            if not authors_in_plat:
+                logger.warning(f'未在{platform}平台查询到歌曲')
+                ignoredIndexes.append(i)
+                continue
+            if not u:
+                logger.error(f'{platform}平台解析出现问题，可以进入网站{Constants.SEARCH_URL}查看此歌曲是否有下载链接')
+                continue
+            logger.info(f"{platform}平台:")
+            for t, a in zip(tits, authors_in_plat):
+                print(f"{index} | {t} - {a}")
+                index += 1  # index++
+        self.temp.ignore = ignoredIndexes
+
+    def getSearchedInfo(self, name, platforms):
         titles = []
         authors = []
         urls = []
@@ -106,35 +174,37 @@ class Crawler:
                 platform=platform
             )
             json_text = requests.post(
-                url=Constants.searchURL,
+                url=Constants.SEARCH_URL,
                 data=param,
-                headers=Constants.headers,
+                headers=Constants.HEADERS,
             ).json()
 
             titles.append(jsonpath(json_text, '$..title'))
             authors.append(jsonpath(json_text, '$..author'))
             urls.append(jsonpath(json_text, '$..url'))
 
+        if not all((not not i) for u in urls for i in u):
+            assert False, '未获得下载url'
+
+        return titles, authors, urls
+
+    def main(self):
+        logger.info("欢迎使用python音乐自助下载脚本")
+        name = input("请输入歌曲名:")
+        platforms = input(
+            f"脚本支持以下平台:\n{Constants.PLATFORM_INFORMATION}\n请选择平台(可多个,用英文逗号隔开): "
+        ).split(',')
+
+        titles, authors, urls = self.getSearchedInfo(name, platforms)
+
         if not titles[0]:
-            raise MusicNotFoundError(Constants.musicNotFoundMsg)
+            raise MusicNotFoundError(Constants.MUSIC_NOT_FOUND_MESSAGE)
 
         print("-------------------------------------------------------\n查找到以下歌曲:\n")
 
-        index = 1
-        shouldIgnores = []
-        for i, (platform, tits, diffAuthor) in enumerate(zip(platforms, titles, authors)):
-            if not diffAuthor:
-                print(f'未在{platform}平台查询到歌曲')
-                shouldIgnores.append(i)
-                continue
-            print(f"{platform}平台:")
-            for t, a in zip(tits, diffAuthor):
-                print(f"{index} | {t} - {a}")
-                index += 1  # index++
+        self.printSearchedInfo(platforms, titles, authors, urls)
 
-        titles = [i for ind, item in enumerate(titles) if ind not in shouldIgnores for i in item]
-        authors = [i for ind, item in enumerate(authors) if ind not in shouldIgnores for i in item]
-        urls = [i for ind, item in enumerate(urls) if ind not in shouldIgnores for i in item]
+        titles, authors, urls = self.getIgnoredArgs(self.temp.ignore, titles, authors, urls)
 
         indexes = input("请输入您想下载的歌曲版本(填序号,多个用英文逗号隔开):").split(',')
 
@@ -145,24 +215,30 @@ class Crawler:
 
         if savePath:
             if not os.path.exists(savePath):
-                raise PathNotExistsError('不存在的路径')
+                raise PathNotExistsError(f'不存在的路径: {savePath}')
             download = self.download(path=savePath)
         else:
-            download = self.download(path=Constants.defaultSavePath)
+            download = self.download(path=Constants.DEFAULT_SAVE_PATH)
 
         for i in indexes:
             i = int(i) - 1
             download(urls[i], authors[i], titles[i])
 
+    @staticmethod
+    def run():
+        import sys
+
+        args = {
+            key: value
+            for item in sys.argv[1:]
+            for key, value in [item.split('=')]
+        }
+        if '--path' in args:
+            Constants.savePath = args['--path']
+
+        instance = Crawler()
+        instance.main()
+
 
 if __name__ == '__main__':
-    import sys
-
-    args = {
-        key: value
-        for item in sys.argv[1:]
-        for key, value in [item.split('=')]
-    }
-    if '--path' in args:
-        Constants.savePath = args['--path']
-    Crawler().main()
+    Crawler.run()
