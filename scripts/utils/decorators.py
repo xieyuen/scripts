@@ -3,7 +3,7 @@ from typing import Callable, Tuple, Literal, Any, Optional, NoReturn
 
 __all__ = [
     'print_return', 'add_return_code', 'print_return_code',
-    'curry',
+    'curry', 'print_arguments',
 ]
 
 
@@ -18,7 +18,7 @@ def curry(callback: Callable | FunctionType | MethodType | BuiltinFunctionType) 
         # else:
         return (
             lambda *more_args, **more_kwargs:
-                curried(*args, *more_args, **kwargs, **more_kwargs)
+            curried(*args, *more_args, **kwargs, **more_kwargs)
         )
 
     return curried
@@ -91,3 +91,15 @@ def print_return_code(callback: Callable) -> Callable:
             return self.__e
 
     return Wrapper(callback)
+
+
+def print_arguments(callback: Callable) -> Callable:
+    """
+    Decorator for printing the arguments of a callable.
+    """
+
+    def wrapper(*args, **kwargs):
+        print(f'Callable: {callback.__name__} is called with arguments: {args}, {kwargs}')
+        return callback(*args, **kwargs)
+
+    return wrapper
