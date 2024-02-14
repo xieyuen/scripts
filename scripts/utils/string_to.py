@@ -22,11 +22,7 @@ def str2None(obj: str) -> None | NoReturn:
 def str2pyobj(obj: str) -> Any | ValueError:
     try:
         res = eval(obj)
-    except NameError:
-        if isinstance(str2bool(obj), bool):
-            return str2bool(obj)
-        raise ValueError(f'{obj} 不是有效的 python 对象')
-    except:
+    except (SyntaxError, TypeError, NameError, ValueError):
         raise ValueError(f'{obj} 不是有效的 python 对象')
     else:
         return res

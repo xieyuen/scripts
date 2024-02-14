@@ -1,8 +1,8 @@
-from threading import Thread
+import asyncio
 from typing import TypedDict, Literal, Optional, Tuple, List
 
+import aiohttp
 import jsonpath
-import requests
 
 from scripts.utils.logger import logger
 
@@ -102,65 +102,54 @@ def get_platform_name(platform):
     return Constants.PLATFORM_NAMES_MAP[Constants.PLATFORM_MAP[platform]]
 
 
-class DownloadThread(Thread):
-    def __init__(self, url, author, title, *, path):
-        super().__init__()
-        self.args = (url, author, title, path)
-
-    def run(self):
-        url, author, title, path = self.args
-        logger.info(f'正在下载 {author}-{title} ...')
-        try:
-            with open(f"{path}/{title}-{author}.mp3", mode='wb') as f:
-                f.write(requests.get(url).content)
-            logger.info(f'{author}-{title} 下载完成!')
-        except Exception as e:
-            logger.error(f'{author}-{title} 下载失败: {e}')
-
-
-class SearchThread(Thread):
-    def __init__(self, name, platform, timeout):
-        super().__init__()
-        self.name = name
-        self.platform = platform
-        self.timeout = timeout
-        self.__result = None  # type: Optional[Tuple[List[str], List[str], List[str]]]
-
-    @property
-    def result(self):
-        return self.__result
-
-    def run(self):
-        logger.info(f'正在{get_platform_name(self.platform)}平台查询中')
-        param = get_param(self.name, self.platform)
-        try:
-            res = requests.post(
-                url=Constants.SEARCH_URL,
-                data=param,
-                headers=Constants.HEADERS,
-                timeout=self.timeout
-            ).json()
-        except TimeoutError:
-            logger.error(f'在{get_platform_name(self.platform)}中搜索超时')
-            return
-        titles = jsonpath.jsonpath(res, '$..title')
-        authors = jsonpath.jsonpath(res, '$..author')
-        urls = jsonpath.jsonpath(res, '$..url')
-
-        if not titles:
-            logger.error(f'在{get_platform_name(self.platform)}中的搜索结果为空')
-            return
-
-        assert urls, '未获得下载url'
-
-        self.__result = titles, authors, urls
-
-
 class Crawler:
     def __init__(self):
         pass
 
-    def run(self):
+    async def download(self, url, author, title):
+        logger.info(f'正在下载 {author}-{title} ...')
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url, timeout=aiohttp.ClientTimeout(connect=self.timeout)) as response:
+                    data = await response.read()
+
+            with open(f"{self.save_path}/{author}-{title}.mp3", 'wb') as f:
+                f.write(data)
+
+            logger.success(f'{author}-{title} 下载完成!')
+
+        except Exception as e:
+            logger.error(f'{author}-{title} 下载失败: {e}')
+
+    async def search(self, name, platform) -> Optional[Tuple[List[str], List[str], List[str]]]:
+        platform_name = get_platform_name(platform)
+        timeout = aiohttp.ClientTimeout(connect=self.timeout)
+        param = get_param(name, platform)
+
+        logger.info(f'正在{platform_name}平台查询中')
+
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(Constants.SEARCH_URL, params=param, timeout=timeout) as response:
+                    data = await response.json()
+
+        except asyncio.TimeoutError:
+            logger.error(f'{platform_name}平台查询超时')
+            return
+
+        titles = jsonpath.jsonpath(data, '$..title')
+        authors = jsonpath.jsonpath(data, '$..author')
+        urls = jsonpath.jsonpath(data, '$..url')
+
+        if not titles:
+            logger.error(f'在{platform_name}中的搜索结果为空')
+            return
+
+        assert urls, '未获得下载url'
+
+        return titles, authors, urls
+
+    async def main(self):
         logger.info("欢迎使用python音乐自助下载脚本")
         name = input("请输入歌曲名:")
         platforms = input(
@@ -170,44 +159,44 @@ class Crawler:
         ).split(',')
         assert platforms, "请选择至少一个平台"
 
-        # 搜索线程
-        search_threads = [
-            SearchThread(platform, name, self.timeout)
-            for platform in platforms
-        ]
-        for st in search_threads:
-            st.start()
-        for st in search_threads:
-            st.join()
+        # 搜索&打印信息
+        logger.info('正在查找...')
+        result = await asyncio.gather(
+            *(self.search(name, platform) for platform in platforms)
+        )
 
-        # 打印结果
+        titles = []
+        authors = []
+        urls = []
         index = 1
-        titles, authors, urls = [], [], []
-        for st in search_threads:
-            if st.result is None:
-                continue
-            print(f"{get_platform_name(st.platform)}平台:")
-            for title, author, _ in zip(*st.result):
-                print(f'{index} | {title} - {author}')
-                index += 1
-            titles.extend(st.result[0])
-            authors.extend(st.result[1])
-            urls.extend(st.result[2])
+        for platform, res in zip(platforms, result):
+            pn = get_platform_name(platform)
+            print(f"{pn}平台：")
+            for title, author, url in zip(*res):
+                print(f"{index} | {title} - {author}")
+                titles.append(title)
+                authors.append(author)
+                urls.append(url)
 
-        download_index = [int(i) for i in input("请输入要下载的歌曲序号(可多个,用英文逗号隔开): ").split(',')]
+        download_index = [
+            int(i) - 1
+            for i in input(
+                "请输入要下载的歌曲序号(可多个,用英文逗号隔开): "
+            ).split(',')
+        ]
         assert download_index, "请选择至少一首歌曲"
 
-        download_threads = [
-            DownloadThread(urls[i - 1], titles[i - 1], authors[i - 1], path=self.save_path)
-            for i in download_index
-        ]
-        for dt in download_threads:
-            dt.start()
-        for dt in download_threads:
-            dt.join()
+        await asyncio.gather(*(
+            asyncio.create_task(self.download(url, title, author))
+            for url, title, author in zip(urls, titles, authors)
+        ))
 
         logger.success("下载完成！")
 
+    @classmethod
+    def run(cls):
+        asyncio.run(cls().main())
+
 
 if __name__ == '__main__':
-    Crawler().run()
+    Crawler.run()

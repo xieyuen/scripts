@@ -1,6 +1,8 @@
 import functools
 from typing import Generator, Callable, Iterable
 
+import keyboard
+
 from scripts.utils import exceptions
 from scripts.utils.jsobj import JSObject
 from scripts.utils.logger import logger
@@ -72,3 +74,8 @@ def dedup(li: Iterable) -> Generator:
         if item not in inLi:
             inLi.append(item)
             yield item
+
+
+def waitKeyPressed(key):
+    while not keyboard.is_pressed(key):
+        pass

@@ -52,6 +52,10 @@ from scripts.utils.string_to import str2bool
 __version__ = '1.0.0'
 
 
+class Configuration:
+    pass
+
+
 class MainProgram:
     def __init__(self, args):
         if len(args) == 0 or '-h' in args or '--help' in args:

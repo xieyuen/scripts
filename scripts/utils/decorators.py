@@ -1,10 +1,12 @@
+from enum import auto
 from types import FunctionType, MethodType, BuiltinFunctionType
-from typing import Callable, Tuple, Literal, Any, Optional, NoReturn
+from typing import Callable, Tuple, Literal, Any, Optional, NoReturn, Generator
 
 __all__ = [
     'print_return', 'add_return_code', 'print_return_code',
     'curry', 'print_arguments',
 ]
+null = auto()
 
 
 def curry(callback: Callable | FunctionType | MethodType | BuiltinFunctionType) -> Callable:
@@ -103,3 +105,31 @@ def print_arguments(callback: Callable) -> Callable:
         return callback(*args, **kwargs)
 
     return wrapper
+
+
+def redirection_hijack(redirection_object: Any, *, need_args=null) -> Callable[[Callable], ...]:
+    """
+    Decorator for hijacking the redirection of a callable.
+    """
+
+    if need_args is null:
+        raise RuntimeError
+
+    def decorator(callback: Callable) -> Callable:
+        if not callable(callback):
+            raise TypeError('Callback must be a callable object.')
+        if not callable(redirection_object):
+            return lambda *args, **kwargs: redirection_object
+
+        def wrapper(*args, **kwargs):
+            if need_args:
+                return redirection_object(*args, **kwargs)
+            return redirection_object()
+
+        return wrapper
+
+    return decorator
+
+
+def toList(callback: Callable[[...], Generator]) -> Callable:
+    return lambda *args, **kwargs: [i for i in callback(*args, **kwargs)]
